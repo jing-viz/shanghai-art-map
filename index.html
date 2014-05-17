@@ -1,29 +1,72 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+<title>上海艺术地图 - by vinjn</title>
+<link rel="stylesheet" type="text/css" href="http://api.amap.com/Public/css/demo.Default.css"/>
 <style type="text/css">
-body, html,#allmap {width: 100%;height: 100%;overflow: hidden;margin:0;}
+    html, body {
+        height: 100%;
+        margin: 0;
+    }
+    body {
+        overflow:hidden;
+    }
+    #iCenter {
+        min-height: 100%; 
+    }
 </style>
-<script src="http://api.map.baidu.com/api?v=2.0&ak=FIWdfO6PROWOlG7UplZpGKBw"></script>
+<!--[if lte IE 6]>
+<style type="text/css">
+    #container {
+        height: 100%;
+    }
+</style>
+<![endif]-->
+
+<script language="javascript" src="http://webapi.amap.com/maps?v=1.2&key=c782dab5eb7efe1269dbc13cd77b9801
+"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script> 
-<title>上海艺术地图</title>
-</head>
-<body>
-<div id="allmap"></div>
-</body>
-</html>
-<script type="text/javascript">
+<script language="javascript">
 
-// 百度地图API功能
-var map = new BMap.Map("allmap");            // 创建Map实例
-map.centerAndZoom("上海",15);                     // 初始化地图,设置中心点坐标和地图级别。
+// http://api.amap.com/javascript/index
+// http://api.amap.com/javascript/example
+var mapObj;
+function mapInit(){
+    mapObj = new AMap.Map("iCenter", {
+        center: new AMap.LngLat(121.473267,31.222715),
+        level:  13
+    });
+    // mapObj.plugin(["AMap.ToolBar"],function(){        
+    //         toolBar = new AMap.ToolBar();  
+    //         mapObj.addControl(toolBar);       
+    //     });
 
-// https://github.com/unixcrh/DOUBANTONGCHENG/blob/master/DouBanTongCheng/ContentVC.m
-$.getJSON("https://api.douban.com/v2/event/list?loc=shanghai&type=exhibition&max-results=50&callback=?", function(result){
-   //response data are now in the result variable
-   console.log(result);
-});
+    // https://github.com/unixcrh/DOUBANTONGCHENG/blob/master/DouBanTongCheng/ContentVC.m
+    var doubanApi = "https://api.douban.com/v2/event/list?loc=shanghai&type=exhibition&max-results=100&callback=?";
+    $.getJSON(doubanApi)
+        .done(function(json){
+            //response json are now in the json variable
+            console.log(json);
+            var events = json.events;
+            for (var i = events.length - 1; i >= 0; i--) {
+                var geo = events[i].geo.split(' ');
+                var marker = new AMap.Marker({
+                    map: mapObj,
+                    position: new AMap.LngLat(geo[1], geo[0]),
+                    title: events[i].title + '\n' + 
+                            events[i].address + '\n' + events[i].begin_time + ' ~ ' + events[i].end_time,
+                });
+            };
+        })
+        .fail(function() {
+            alert('脦脼路篓路脙脦脢露鹿掳锚脥卢鲁脟API拢隆');
+        });    
+}
 
 </script>
+</head>
+<body onLoad="mapInit()">
+    <div id="iCenter"></div>
+</body>
+</html>
