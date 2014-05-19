@@ -101,10 +101,13 @@ function mapInit(){
                                 events[i].begin_time.substring(5, events[i].begin_time.length - 3) + ' ~ ' + 
                                 events[i].end_time.substring(5, events[i].end_time.length - 3)
                 });
-                // var idx = i;
-                // AMap.event.addListener(marker, 'click', function(e){
-                //     marker.setContent(events[idx].content);
-                // });
+
+                AMap.event.addListener(marker, 'click', function(marker_, i_) {
+                    return function() {
+                        // marker_.setContent(events[i_].content);
+                        window.open(events[i_].alt,'mywin','');
+                    };
+                }(marker, i));
             };
         })
         .fail(function() {
