@@ -87,28 +87,33 @@ function mapInit(){
         .done(function(json){
             //response json are now in the json variable
             console.log(json);
-            var events = json.events;
-            for (var i = events.length - 1; i >= 0; i--) {
-                var geo = events[i].geo.split(' ');
+            json.events.forEach(function(ev, i) {
+                var geo = ev.geo.split(' ');
                 var marker = new AMap.Marker({
                     map:        mapObj,
                     position:   new AMap.LngLat(geo[1], geo[0]),
-                    // icon:       events[i].owner.alt.match('site') ? new AMap.Icon({
-                    //                 image: events[i].owner.avatar,
+                    // icon:       ev.owner.alt.match('site') ? new AMap.Icon({
+                    //                 image: ev.owner.avatar,
                     //             }) : null,
-                    title:      events[i].title + '\n' + 
-                                events[i].address.replace(/上海(\s+|市)/g, '') + '\n' + 
-                                events[i].begin_time.substring(5, events[i].begin_time.length - 3) + ' ~ ' + 
-                                events[i].end_time.substring(5, events[i].end_time.length - 3)
+                    title:      ev.title + '\n' + 
+                                ev.address.replace(/上海(\s+|市)/g, '') + '\n' + 
+                                ev.begin_time.substring(5, ev.begin_time.length - 3) + ' ~ ' + 
+                                ev.end_time.substring(5, ev.end_time.length - 3)
                 });
 
-                AMap.event.addListener(marker, 'click', function(marker_, i_) {
-                    return function() {
-                        // marker_.setContent(events[i_].content);
-                        window.open(events[i_].alt,'mywin','');
-                    };
-                }(marker, i));
-            };
+                // closure based
+                // AMap.event.addListener(marker, 'click', function(marker_, i_) {
+                //     return function() {
+                //         // marker_.setContent(json.events[i_].content);
+                //         window.open(json.events[i_].alt,'mywin','');
+                //     };
+                // }(marker, i));
+
+                AMap.event.addListener(marker, 'click', function() {
+                    // marker_.setContent(ev.content);
+                    window.open(ev.alt,'mywin','');
+                });
+            });
         })
         .fail(function() {
             alert('Can not use douban api');
