@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <title>上海艺术地图</title>
-<link rel="stylesheet" type="text/css" href="http://api.amap.com/Public/css/demo.Default.css"/>
+<link rel="stylesheet" href="http://cache.amap.com/lbs/static/main1119.css"/>
 <style type="text/css">
     html, body {
         height: 100%;
@@ -24,9 +24,9 @@
 </style>
 <![endif]-->
 
-<script language="javascript" src="http://webapi.amap.com/maps?v=1.2&key=c782dab5eb7efe1269dbc13cd77b9801
+<script language="javascript" src="http://webapi.amap.com/maps?v=1.3&key=c782dab5eb7efe1269dbc13cd77b9801
 "></script>
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script> 
+<script src="http://lib.sinaapp.com/js/jquery/3.1.0/jquery-3.1.0.min.js"></script> 
 <script language="javascript">
 
 // http://api.amap.com/javascript/index
@@ -61,11 +61,11 @@ function addMarker(){
      markerContent.appendChild(markerSpan);  
      marker = new AMap.Marker({  
         map:mapObj,  
-        position:new AMap.LngLat(116.389267,39.925601), //基点位置  
+        position:mapObj.center, //基点位置  
         offset:new AMap.Pixel(-18,-36), //相对于基点的偏移位置  
         draggable:true,  //是否可拖动  
         content:markerContent   //自定义点标记覆盖物内容  
-    });  
+    });
     marker.setMap(mapObj);  //在地图上添加点  
 }
 
@@ -80,27 +80,36 @@ function mapInit(){
     // });
 
     // addBuildings();
+    // addMarker();
 
     // https://github.com/unixcrh/DOUBANTONGCHENG/blob/master/DouBanTongCheng/ContentVC.m
-    var doubanApi = "https://api.douban.com/v2/event/list?loc=shanghai&type=exhibition&max-results=100&callback=?";
+    // https://developers.douban.com/wiki/?title=event_v2
+    
+    var doubanApi = "https://api.douban.com/v2/event/list?loc=shanghai&type=exhibition&max-results=50&callback=?";
     $.getJSON(doubanApi)
         .done(function(json){
             //response json are now in the json variable
-            console.log(json);
+            // console.log(json);
             json.events.forEach(function(ev, i) {
                 var geo = ev.geo.split(' ');
                 var marker = new AMap.Marker({
                     map:        mapObj,
                     position:   new AMap.LngLat(geo[1], geo[0]),
+                    icon:       "http://webapi.amap.com/images/1.png",
                     // icon:       ev.owner.alt.match('site') ? new AMap.Icon({
                     //                 image: ev.owner.avatar,
                     //             }) : null,
+                    // label:      "vvvvvv",
                     title:      ev.title + '\n' + 
                                 ev.address.replace(/上海(\s+|市)/g, '') + '\n' + 
                                 ev.begin_time.substring(5, ev.begin_time.length - 3) + ' ~ ' + 
                                 ev.end_time.substring(5, ev.end_time.length - 3)
                 });
 
+                marker.setLabel({//label默认蓝框白底左上角显示，样式className为：amap-marker-label
+                    offset: new AMap.Pixel(20, 20),//修改label相对于maker的位置
+                    content: ev.title
+                });
                 // closure based
                 // AMap.event.addListener(marker, 'click', function(marker_, i_) {
                 //     return function() {
