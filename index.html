@@ -4,6 +4,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 <title>上海艺术地图</title>
 <link rel="stylesheet" href="http://cache.amap.com/lbs/static/main1119.css"/>
+<!-- <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"> -->
 <style type="text/css">
     html, body {
         height: 100%;
@@ -84,49 +85,70 @@ function mapInit(){
 
     // https://github.com/unixcrh/DOUBANTONGCHENG/blob/master/DouBanTongCheng/ContentVC.m
     // https://developers.douban.com/wiki/?title=event_v2
-    
-    var doubanApi = "https://api.douban.com/v2/event/list?loc=shanghai&type=exhibition&max-results=50&callback=?";
-    $.getJSON(doubanApi)
-        .done(function(json){
-            //response json are now in the json variable
-            // console.log(json);
-            json.events.forEach(function(ev, i) {
-                var geo = ev.geo.split(' ');
-                var marker = new AMap.Marker({
-                    map:        mapObj,
-                    position:   new AMap.LngLat(geo[1], geo[0]),
-                    icon:       "http://webapi.amap.com/images/1.png",
-                    // icon:       ev.owner.alt.match('site') ? new AMap.Icon({
-                    //                 image: ev.owner.avatar,
-                    //             }) : null,
-                    // label:      "vvvvvv",
-                    title:      ev.title + '\n' + 
-                                ev.address.replace(/上海(\s+|市)/g, '') + '\n' + 
-                                ev.begin_time.substring(5, ev.begin_time.length - 3) + ' ~ ' + 
-                                ev.end_time.substring(5, ev.end_time.length - 3)
-                });
+    var doubanEvents = [
+        "https://api.douban.com/v2/event/list?loc=shanghai&type=music&max-results=30&callback=?",
+        "https://api.douban.com/v2/event/list?loc=shanghai&type=drama&max-results=30&callback=?",
+        "https://api.douban.com/v2/event/list?loc=shanghai&type=film&max-results=30&callback=?",
+        "https://api.douban.com/v2/event/list?loc=shanghai&type=exhibition&max-results=30&callback=?",
+    ];
+    // http://fontawesome.io/icons/
+    var doubanIcons = [
+        '<i class="fa fa-music" aria-hidden="true"></i>',
+        '<i class="fa fa-magic" aria-hidden="true"></i>',
+        '<i class="fa fa-film" aria-hidden="true"></i>',
+        '<i class="fa fa-paint-brush" aria-hidden="true"></i>',
+    ];
 
-                marker.setLabel({//label默认蓝框白底左上角显示，样式className为：amap-marker-label
-                    offset: new AMap.Pixel(20, 20),//修改label相对于maker的位置
-                    content: ev.title
-                });
-                // closure based
-                // AMap.event.addListener(marker, 'click', function(marker_, i_) {
-                //     return function() {
-                //         // marker_.setContent(json.events[i_].content);
-                //         window.open(json.events[i_].alt,'mywin','');
-                //     };
-                // }(marker, i));
+    // http://www.flaticon.com/
+    var doubanFlatIcons = [
+        'media/music-player.png',
+        'media/theater.png',
+        'media/camera.png',
+        'media/college.png',
+    ];
+    doubanEvents.forEach(function(doubanEvent, i) {
+        $.getJSON(doubanEvent)
+            .done(function(json){
+                //response json are now in the json variable
+                // console.log(json);
+                json.events.reverse().forEach(function(ev, j) {
+                    var geo = ev.geo.split(' ');
+                    var marker = new AMap.Marker({
+                        map:        mapObj,
+                        position:   new AMap.LngLat(geo[1], geo[0]),
+                        icon:       doubanFlatIcons[i],
+                        // icon:       ev.owner.alt.match('site') ? new AMap.Icon({
+                        //                 image: ev.owner.avatar,
+                        //             }) : null,
+                        // label:      "vvvvvv",
+                        title:      ev.title + '\n' + 
+                                    ev.address.replace(/上海(\s+|市)/g, '') + '\n' + 
+                                    ev.begin_time.substring(5, ev.begin_time.length - 3) + ' ~ ' + 
+                                    ev.end_time.substring(5, ev.end_time.length - 3)
+                    });
 
-                AMap.event.addListener(marker, 'click', function() {
-                    // marker_.setContent(ev.content);
-                    window.open(ev.alt,'mywin','');
+                    marker.setLabel({//label默认蓝框白底左上角显示，样式className为：amap-marker-label
+                        offset: new AMap.Pixel(26, 0),//修改label相对于maker的位置
+                        content: ev.title
+                    });
+                    // closure based
+                    // AMap.event.addListener(marker, 'click', function(marker_, i_) {
+                    //     return function() {
+                    //         // marker_.setContent(json.events[i_].content);
+                    //         window.open(json.events[i_].alt,'mywin','');
+                    //     };
+                    // }(marker, i));
+
+                    AMap.event.addListener(marker, 'click', function() {
+                        // marker_.setContent(ev.content);
+                        window.open(ev.alt,'mywin','');
+                    });
                 });
-            });
-        })
-        .fail(function() {
-            alert('Can not use douban api');
-        });    
+            })
+            .fail(function() {
+                alert('Can not use douban api');
+            }); 
+    });   
 }
 
 </script>
