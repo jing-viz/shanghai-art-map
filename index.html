@@ -114,6 +114,7 @@ function mapInit(){
                 //response json are now in the json variable
                 // console.log(json);
                 json.events.reverse().forEach(function(ev, j) {
+                    ev.title = ev.title.replace(/上海(\s+|市|站)/g, '')
                     let geo = ev.geo.split(' ');
                     let marker = new AMap.Marker({
                         map:        mapObj,
@@ -124,7 +125,7 @@ function mapInit(){
                         //             }) : null,
                         // label:      "vvvvvv",
                         title:      ev.title + '\n' + 
-                                    ev.address.replace(/上海(\s+|市)/g, '') + '\n' + 
+                                    ev.address.replace(/上海(\s+|市|站)/g, '') + '\n' + 
                                     ev.begin_time.substring(5, ev.begin_time.length - 3) + ' ~ ' + 
                                     ev.end_time.substring(5, ev.end_time.length - 3)
                     });
