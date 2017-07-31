@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-<title>上海艺术地图</title>
+<title>中国艺术地图</title>
 <link rel="stylesheet" href="https://cache.amap.com/lbs/static/main1119.css"/>
 <!-- <link href="https://cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"> -->
 <style type="text/css">
@@ -17,150 +17,11 @@
         min-height: 100%; 
     }
 </style>
-<!--[if lte IE 6]>
-<style type="text/css">
-    #container {
-        height: 100%;
-    }
-</style>
-<![endif]-->
 
-<script language="javascript" src="https://webapi.amap.com/maps?v=1.3&key=c782dab5eb7efe1269dbc13cd77b9801
-"></script>
+<script language="javascript" src="https://webapi.amap.com/maps?v=1.3&key=c782dab5eb7efe1269dbc13cd77b9801"></script>
 <script src="https://lib.sinaapp.com/js/jquery/3.1.0/jquery-3.1.0.min.js"></script> 
-<script language="javascript">
+<script src="cities.js"></script>
+<script src="app.js"></script>
 
-// http://api.amap.com/javascript/index
-// http://api.amap.com/javascript/example
-let mapObj;
-
-function addBuildings(){  
-    if (typeof(Worker) !== "undefined") {  
-        let buildings = new AMap.Buildings(); //实例化3D楼块图层  
-        buildings.setMap(mapObj);//在map中添加3D楼块图层  
-    } else {
-        // document.getElementById("info").innerHTML="对不起，运行该示例需要浏览器支持HTML5！";  
-    }  
-}  
-
-
-//添加带文本的点标记覆盖物  
-function addMarker(){   
-    //自定义点标记内容     
-    let markerContent = document.createElement("div");  
-    markerContent.className = "markerContentStyle";  
-      
-    //点标记中的图标  
-    let markerImg= document.createElement("img");  
-     markerImg.className="markerlnglat";  
-     markerImg.src="https://webapi.amap.com/images/0.png";     
-     markerContent.appendChild(markerImg);  
-       
-     //点标记中的文本  
-     let markerSpan = document.createElement("span");  
-     markerSpan.innerHTML = "我是自定义样式的点标记哦！";  
-     markerContent.appendChild(markerSpan);  
-     marker = new AMap.Marker({  
-        map:mapObj,  
-        position:mapObj.center, //基点位置  
-        offset:new AMap.Pixel(-18,-36), //相对于基点的偏移位置  
-        draggable:true,  //是否可拖动  
-        content:markerContent   //自定义点标记覆盖物内容  
-    });
-    marker.setMap(mapObj);  //在地图上添加点  
-}
-
-function mapInit(){
-    mapObj = new AMap.Map("iCenter", {
-        center: new AMap.LngLat(121.473267,31.222715),
-        level:  13
-    });
-    // mapObj.plugin(["AMap.ToolBar"],function(){        
-    //     toolBar = new AMap.ToolBar();  
-    //     mapObj.addControl(toolBar);       
-    // });
-
-    // addBuildings();
-    // addMarker();
-
-    // https://github.com/unixcrh/DOUBANTONGCHENG/blob/master/DouBanTongCheng/ContentVC.m
-    // https://developers.douban.com/wiki/?title=event_v2
-    let doubanEvents = [
-        "https://api.douban.com/v2/event/list?loc=shanghai&type=music&max-results=30&callback=?",
-        "https://api.douban.com/v2/event/list?loc=shanghai&type=drama&max-results=30&callback=?",
-        "https://api.douban.com/v2/event/list?loc=shanghai&type=film&max-results=30&callback=?",
-        "https://api.douban.com/v2/event/list?loc=shanghai&type=exhibition&max-results=30&callback=?",
-    ];
-    // http://fontawesome.io/icons/
-    let doubanIcons = [
-        '<i class="fa fa-music" aria-hidden="true"></i>',
-        '<i class="fa fa-magic" aria-hidden="true"></i>',
-        '<i class="fa fa-film" aria-hidden="true"></i>',
-        '<i class="fa fa-paint-brush" aria-hidden="true"></i>',
-    ];
-
-    // http://www.flaticon.com/
-    let doubanFlatIcons = [
-        'media/music-player.png',
-        'media/theater.png',
-        'media/camera.png',
-        'media/college.png',
-    ];
-
-    let fail_to_access_douban = false;
-    doubanEvents.forEach(function(doubanEvent, i) {
-        $.getJSON(doubanEvent)
-            .done(function(json){
-                //response json are now in the json variable
-                // console.log(json);
-                json.events.reverse().forEach(function(ev, j) {
-                    ev.title = ev.title.replace(/上海(\s+|市|站)/g, '')
-                    let geo = ev.geo.split(' ');
-                    let marker = new AMap.Marker({
-                        map:        mapObj,
-                        position:   new AMap.LngLat(geo[1], geo[0]),
-                        icon:       doubanFlatIcons[i],
-                        // icon:       ev.owner.alt.match('site') ? new AMap.Icon({
-                        //                 image: ev.owner.avatar,
-                        //             }) : null,
-                        // label:      "vvvvvv",
-                        title:      ev.title + '\n' + 
-                                    ev.address.replace(/上海(\s+|市|站)/g, '') + '\n' + 
-                                    ev.begin_time.substring(5, ev.begin_time.length - 3) + ' ~ ' + 
-                                    ev.end_time.substring(5, ev.end_time.length - 3)
-                    });
-
-                    marker.setLabel({//label默认蓝框白底左上角显示，样式className为：amap-marker-label
-                        offset: new AMap.Pixel(26, 0),//修改label相对于maker的位置
-                        content: ev.title
-                    });
-                    // closure based
-                    // AMap.event.addListener(marker, 'click', function(marker_, i_) {
-                    //     return function() {
-                    //         // marker_.setContent(json.events[i_].content);
-                    //         window.open(json.events[i_].alt,'mywin','');
-                    //     };
-                    // }(marker, i));
-
-                    AMap.event.addListener(marker, 'click', function() {
-                        // marker_.setContent(ev.content);
-                        window.open(ev.alt,'mywin','');
-                    });
-                });
-            })
-            .fail(function( jqxhr, textStatus, error ) {                
-                if (!fail_to_access_douban) {
-                    let err = textStatus + ", " + error;
-                    alert( "Access douban failed: " + err );
-                }
-                fail_to_access_douban = true;
-            }); 
-    });   
-}
-
-</script>
 </head>
-<body onLoad="mapInit()">
-    <div id="iCenter"></div>
-</body>
 </html>
