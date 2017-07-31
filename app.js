@@ -58,13 +58,19 @@ function resetCity(city_param) {
     let fail_to_access_douban = false;
     doubanEvents.forEach(function(doubanEvent, i) {
         doubanEvent = doubanEvent.replace('__CITY_EN__', city_param[0]);
-        const omitter = '/__CITY_CN__(\s+|市|站)/g'.replace('__CITY_CN__', city_param[1]);
+        const omitter = '/__CITY_CN__(\s+|市title|站)/g'.replace('__CITY_CN__', city_param[1]);
         $.getJSON(doubanEvent)
             .done(function(json){
                 //response json are now in the json variable
                 console.log(json);
                 json.events.reverse().forEach(function(ev, j) {
-                    ev.title = ev.title.replace(omitter, '')
+                    ev.title = ev.title.replace('免费', '')
+                    ev.title = ev.title.replace(city_param[1]+'站', '')
+                    ev.title = ev.title.replace(city_param[1]+'室', '')
+                    ev.title = ev.title.replace(city_param[1], '')
+                    ev.title = ev.title.replace(city_param[1], '')
+                    ev.title = ev.title.replace('中国', '')
+                    // ev.title = ev.title.replace(omitter, '')
                     let geo = ev.geo.split(' ');
                     let marker = new AMap.Marker({
                         map:        mapObj,
@@ -80,17 +86,11 @@ function resetCity(city_param) {
                                     ev.end_time.substring(5, ev.end_time.length - 3)
                     });
 
+                    // ev.price_range = ev.price_range.replace('免费', 'FREE');
                     marker.setLabel({//label默认蓝框白底左上角显示，样式className为：amap-marker-label
                         offset: new AMap.Pixel(26, 0),//修改label相对于maker的位置
-                        content: ev.title
+                        content: '¥ '+ ev.price_range + ' ' + ev.title
                     });
-                    // closure based
-                    // AMap.event.addListener(marker, 'click', function(marker_, i_) {
-                    //     return function() {
-                    //         // marker_.setContent(json.events[i_].content);
-                    //         window.open(json.events[i_].alt,'mywin','');
-                    //     };
-                    // }(marker, i));
 
                     AMap.event.addListener(marker, 'click', function() {
                         // marker_.setContent(ev.content);
