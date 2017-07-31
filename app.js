@@ -1,5 +1,9 @@
-// http://api.amap.com/javascript/index
-// http://api.amap.com/javascript/example
+/*
+http://api.amap.com/javascript/index
+http://api.amap.com/javascript/example
+http://lbs.amap.com/api/javascript-api/summary/
+*/
+
 let mapObj;
 
 function addBuildings(){  
@@ -38,6 +42,9 @@ function addMarker(){
 }
 
 function resetCity(city_param) {
+
+    mapObj.setCenter(new AMap.LngLat(city_param[2], city_param[3]));
+
     // https://github.com/unixcrh/DOUBANTONGCHENG/blob/master/DouBanTongCheng/ContentVC.m
     // https://developers.douban.com/wiki/?title=event_v2
     let doubanEvents = [
@@ -98,7 +105,7 @@ function resetCity(city_param) {
                     });
                 });
 
-                document.title = '中国艺术地图 - ' + city_param[1];
+                document.title = '北上广艺术地图 - ' + city_param[1];
             })
             .fail(function( jqxhr, textStatus, error ) {                
                 if (!fail_to_access_douban) {
@@ -111,14 +118,15 @@ function resetCity(city_param) {
 }
 
 function mapInit(){
+    // http://lbs.amap.com/api/javascript-api/guide/create-map/mapstye
     mapObj = new AMap.Map("iCenter", {
-        center: new AMap.LngLat(121.473267,31.222715),
-        level:  13
+        level:  13,
+        // mapStyle: 'amap://styles/graffiti',
     });
-    // mapObj.plugin(["AMap.ToolBar"],function(){        
-    //     toolBar = new AMap.ToolBar();  
-    //     mapObj.addControl(toolBar);       
-    // });
+    mapObj.plugin(["AMap.ToolBar"],function(){        
+        toolBar = new AMap.ToolBar();  
+        mapObj.addControl(toolBar);       
+    });
 
     // addBuildings();
     // addMarker();
