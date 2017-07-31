@@ -1,6 +1,4 @@
 /*
-http://api.amap.com/javascript/index
-http://api.amap.com/javascript/example
 http://lbs.amap.com/api/javascript-api/summary/
 */
 
@@ -41,17 +39,34 @@ function addMarker(){
     marker.setMap(mapObj);  //在地图上添加点  
 }
 
-function resetCity(city_param) {
+function resetCity(city_key) {
+    mapObj = new AMap.Map("iCenter", {
+        center: new AMap.LngLat(121.473267,31.222715),
+        level:  13,
+        // mapStyle: 'amap://styles/graffiti',
+    });
+    mapObj.plugin(["AMap.ToolBar"],function(){        
+        toolBar = new AMap.ToolBar();  
+        mapObj.addControl(toolBar);       
+    });
 
-    mapObj.setCenter(new AMap.LngLat(city_param[2], city_param[3]));
+    city = {
+        name : cities[city_key][0],
+        x : cities[city_key][1],
+        y : cities[city_key][2],
+        zoom : cities[city_key][3],
+    }
+
+    mapObj.setCenter(new AMap.LngLat(city.x, city.y));
+    mapObj.setZoomAndCenter(city.zoom)
 
     // https://github.com/unixcrh/DOUBANTONGCHENG/blob/master/DouBanTongCheng/ContentVC.m
     // https://developers.douban.com/wiki/?title=event_v2
     let doubanEvents = [
-        "https://api.douban.com/v2/event/list?loc=__CITY_EN__&type=music&max-results=30&callback=?",
-        "https://api.douban.com/v2/event/list?loc=__CITY_EN__&type=drama&max-results=30&callback=?",
-        "https://api.douban.com/v2/event/list?loc=__CITY_EN__&type=film&max-results=30&callback=?",
-        "https://api.douban.com/v2/event/list?loc=__CITY_EN__&type=exhibition&max-results=30&callback=?",
+        "https://api.douban.com/v2/event/list?loc=__CITY_EN__&type=music&max-results=10&callback=?",
+        "https://api.douban.com/v2/event/list?loc=__CITY_EN__&type=drama&max-results=10&callback=?",
+        "https://api.douban.com/v2/event/list?loc=__CITY_EN__&type=film&max-results=10&callback=?",
+        "https://api.douban.com/v2/event/list?loc=__CITY_EN__&type=exhibition&max-results=10&callback=?",
     ];
 
     // http://www.flaticon.com/
@@ -64,18 +79,18 @@ function resetCity(city_param) {
 
     let fail_to_access_douban = false;
     doubanEvents.forEach(function(doubanEvent, i) {
-        doubanEvent = doubanEvent.replace('__CITY_EN__', city_param[0]);
-        const omitter = '/__CITY_CN__(\s+|市title|站)/g'.replace('__CITY_CN__', city_param[1]);
+        doubanEvent = doubanEvent.replace('__CITY_EN__', city_key);
+        const omitter = '/__CITY_CN__(\s+|市title|站)/g'.replace('__CITY_CN__', city_key);
         $.getJSON(doubanEvent)
             .done(function(json){
                 //response json are now in the json variable
                 console.log(json);
                 json.events.reverse().forEach(function(ev, j) {
                     ev.title = ev.title.replace('免费', '')
-                    ev.title = ev.title.replace(city_param[1]+'站', '')
-                    ev.title = ev.title.replace(city_param[1]+'室', '')
-                    ev.title = ev.title.replace(city_param[1], '')
-                    ev.title = ev.title.replace(city_param[1], '')
+                    ev.title = ev.title.replace(city_key+'站', '')
+                    ev.title = ev.title.replace(city_key+'室', '')
+                    ev.title = ev.title.replace(city_key, '')
+                    ev.title = ev.title.replace(city_key, '')
                     ev.title = ev.title.replace('中国', '')
                     // ev.title = ev.title.replace(omitter, '')
                     let geo = ev.geo.split(' ');
@@ -105,7 +120,7 @@ function resetCity(city_param) {
                     });
                 });
 
-                document.title = '北上广艺术地图 - ' + city_param[1];
+                document.title = '北上广艺术地图 - ' + city_key;
             })
             .fail(function( jqxhr, textStatus, error ) {                
                 if (!fail_to_access_douban) {
@@ -119,19 +134,27 @@ function resetCity(city_param) {
 
 function mapInit(){
     // http://lbs.amap.com/api/javascript-api/guide/create-map/mapstye
-    mapObj = new AMap.Map("iCenter", {
-        level:  13,
-        // mapStyle: 'amap://styles/graffiti',
-    });
-    mapObj.plugin(["AMap.ToolBar"],function(){        
-        toolBar = new AMap.ToolBar();  
-        mapObj.addControl(toolBar);       
-    });
 
+    for (key in cities) {
+        city = cities[key];
+        // console.log(city);
+        html = '<button type="button" class="btn btn-primary" ' + 'id=' + key + '>' + city[0] + '</button>'
+        // hanlder = (key) => () => {
+                // console.log(key);
+            // }(key);
+        handler = function(arg){
+            return function(){
+                console.log(arg);
+                resetCity(arg);
+            };
+        }(key);            
+        $('#city_buttons').append(html);
+        $('#'+key).click(handler);
+    }
     // addBuildings();
     // addMarker();
 
-    resetCity(cities[1]);
+    resetCity('shanghai');
 }
 
 $(document).ready(mapInit);
