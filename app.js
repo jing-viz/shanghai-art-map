@@ -3,6 +3,7 @@ http://lbs.amap.com/api/javascript-api/summary/
 */
 
 let mapObj;
+let fail_to_access_douban = false;
 
 function addBuildings(){  
     if (typeof(Worker) !== "undefined") {  
@@ -52,13 +53,11 @@ function resetCity(city_key) {
 
     city = {
         name : cities[city_key][0],
-        x : cities[city_key][1],
-        y : cities[city_key][2],
-        zoom : cities[city_key][3],
+        zoom : cities[city_key][1],
     }
 
-    mapObj.setCenter(new AMap.LngLat(city.x, city.y));
-    mapObj.setZoomAndCenter(city.zoom)
+    // mapObj.setCenter(new AMap.LngLat(city.x, city.y));
+    mapObj.setCity(city.name);
 
     // https://github.com/unixcrh/DOUBANTONGCHENG/blob/master/DouBanTongCheng/ContentVC.m
     // https://developers.douban.com/wiki/?title=event_v2
@@ -77,7 +76,6 @@ function resetCity(city_key) {
         'media/college.png',
     ];
 
-    let fail_to_access_douban = false;
     doubanEvents.forEach(function(doubanEvent, i) {
         doubanEvent = doubanEvent.replace('__CITY_EN__', city_key);
         const omitter = '/__CITY_CN__(\s+|市title|站)/g'.replace('__CITY_CN__', city_key);
@@ -120,7 +118,8 @@ function resetCity(city_key) {
                     });
                 });
 
-                document.title = '北上广艺术地图 - ' + city_key;
+                document.title = '北上广艺术地图 - ' + city.name;
+                mapObj.setZoomAndCenter(city.zoom)
             })
             .fail(function( jqxhr, textStatus, error ) {                
                 if (!fail_to_access_douban) {
