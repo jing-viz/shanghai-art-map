@@ -40,7 +40,11 @@ function addMarker(){
     marker.setMap(mapObj);  //在地图上添加点  
 }
 
+let last_fetched_events = [];
+
 function resetCity(city_key) {
+
+    last_fetched_events = [];
 
     let show_paid_events = $("#paid-events").is(':checked');
     mapObj = new AMap.Map("iCenter", {
@@ -85,6 +89,7 @@ function resetCity(city_key) {
             .done(json => {
                 //response json are now in the json variable
                 console.log(json);
+                last_fetched_events.push(json);
                 json.events.reverse().forEach((ev, j) => {
                     if (!show_paid_events && ev.fee_str !== '免费') {
                         // skip paid events
