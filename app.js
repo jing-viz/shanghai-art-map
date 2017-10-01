@@ -41,14 +41,16 @@ function addMarker(){
 }
 
 function resetCity(city_key) {
+
+    let show_paid_events = $("#paid-events").is(':checked');
     mapObj = new AMap.Map("iCenter", {
         center: new AMap.LngLat(121.473267,31.222715),
         level:  13,
         // mapStyle: 'amap://styles/graffiti',
     });
-    mapObj.plugin(["AMap.ToolBar"],function(){        
+    mapObj.plugin(["AMap.ToolBar"], () => {
         toolBar = new AMap.ToolBar();  
-        mapObj.addControl(toolBar);       
+        mapObj.addControl(toolBar);
     });
 
     city = {
@@ -76,14 +78,18 @@ function resetCity(city_key) {
         'media/college.png',
     ];
 
-    doubanEvents.forEach(function(doubanEvent, i) {
+    doubanEvents.forEach((doubanEvent, i) => {
         doubanEvent = doubanEvent.replace('__CITY_EN__', city_key);
         const omitter = '/__CITY_CN__(\s+|市title|站)/g'.replace('__CITY_CN__', city_key);
         $.getJSON(doubanEvent)
-            .done(function(json){
+            .done(json => {
                 //response json are now in the json variable
                 console.log(json);
-                json.events.reverse().forEach(function(ev, j) {
+                json.events.reverse().forEach((ev, j) => {
+                    if (!show_paid_events && ev.fee_str !== '免费') {
+                        // skip paid events
+                        return;
+                    }
                     ev.title = ev.title.replace('免费', '')
                     ev.title = ev.title.replace(city_key+'站', '')
                     ev.title = ev.title.replace(city_key+'室', '')
@@ -112,7 +118,7 @@ function resetCity(city_key) {
                         content: '¥ '+ ev.price_range + ' ' + ev.title
                     });
 
-                    AMap.event.addListener(marker, 'click', function() {
+                    AMap.event.addListener(marker, 'click', () => {
                         // marker_.setContent(ev.content);
                         window.open(ev.alt,'mywin','');
                     });
@@ -121,7 +127,7 @@ function resetCity(city_key) {
                 document.title = '北上广艺术地图 - ' + city.name;
                 mapObj.setZoomAndCenter(city.zoom)
             })
-            .fail(function( jqxhr, textStatus, error ) {                
+            .fail(( jqxhr, textStatus, error ) => {                
                 if (!fail_to_access_douban) {
                     let err = textStatus + ", " + error;
                     alert( "Access douban failed: " + err );
@@ -138,18 +144,14 @@ function mapInit(){
         city = cities[key];
         // console.log(city);
         html = '<button type="button" class="btn btn-primary" ' + 'id=' + key + '>' + city[0] + '</button>'
-        // hanlder = (key) => () => {
-                // console.log(key);
-            // }(key);
-        handler = function(arg){
-            return function(){
-                console.log(arg);
-                resetCity(arg);
-            };
-        }(key);            
         $('#city_buttons').append(html);
-        $('#'+key).click(handler);
+        let city_name = key;
+        $('#'+city_name).click(() => {
+            console.log(city_name);
+            resetCity(city_name);
+        });
     }
+
     // addBuildings();
     // addMarker();
 
