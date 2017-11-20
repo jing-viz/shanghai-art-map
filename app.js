@@ -125,7 +125,7 @@ function resetCity(city_key) {
 
                     AMap.event.addListener(marker, 'click', () => {
                         // marker_.setContent(ev.content);
-                        window.open(ev.alt,'mywin','');
+                        window.open(ev.alt,'_blank');
                     });
                 });
 
